@@ -10,6 +10,7 @@
     "profile",
     "projectAnalysis",
     "release",
+    "releaseDefinitionCreate",
     "task",
     "test",
     "wiki",

@@ -17,6 +17,7 @@
         "profile.ts",
         "projectAnalysis.ts",
         "release.ts",
+        "releaseDefinitionCreate.ts",
         "task.ts",
         "test.ts",
         "wiki.ts",

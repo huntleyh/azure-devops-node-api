@@ -78,21 +78,47 @@ async function deleteProject(projectId: string): Promise<boolean> {
     }
     return false;
 }
-
+async function doesProjectExist(projectId: string): Promise<boolean> {
+    let project: coreInterfaces.TeamProject = await coreApi.getProject(projectId);
+    if (!project) {
+        return false;
+    }
+    return true;
+}
 async function runSamples(selected?: string) {
     const webApi: nodeApi.WebApi = await cm.getWebApi();
     coreApi = await webApi.getCoreApi();
-    const projectId: string = "azureDevopsNodeSampleProject";
+    let projectId: string = "azureDevopsNodeSampleProject";
+    const paramProjectId: string = cm.getProject();
+    let projectExists: boolean;
 
-    cm.heading("Creating example project");
-    if (await createProject(projectId)) {
-        console.log("Project created");
+    if(paramProjectId != null)
+    {
+        console.log('Recieved target project',paramProjectId);
+        projectExists = await doesProjectExist(paramProjectId);
+
+        if(projectExists)
+        {
+            console.log('Project ',paramProjectId, ' exists already');
+            projectId = paramProjectId;
+        }
+        else
+        {
+            console.log('Project ', paramProjectId, ' does not exist. Creating sample');
+        }
     }
-    else {
-        console.log("Failed to create project, exiting");
-        return;
+
+    if(projectExists == false)
+    {
+        cm.heading("Creating example project");
+        if (await createProject(projectId)) {
+            console.log("Project created");
+        }
+        else {
+            console.log("Failed to create project, exiting");
+            return;
+        }
     }
-    
     for (let i: number = 0; i < samples.length; i++) {
         let sample: string = samples[i];
 
@@ -105,12 +131,15 @@ async function runSamples(selected?: string) {
         await sm.run(projectId);
     }
 
-    cm.heading("Cleaning up project");
-    if (await deleteProject(projectId)) {
-        console.log("Done");
-    }
-    else {
-        console.log("Failed to delete project");
+    if(projectExists == false)
+    {
+        cm.heading("Cleaning up project");
+        if (await deleteProject(projectId)) {
+            console.log("Done");
+        }
+        else {
+            console.log("Failed to delete project");
+        }
     }
 }
 

@@ -2,14 +2,26 @@ import * as vm from "azure-devops-node-api";
 import * as lim from "azure-devops-node-api/interfaces/LocationsInterfaces";
 
 function getEnv(name: string): string {
+    return getOptionalEnv(name, false);
+}
+function getOptionalEnv(name: string, isOptional: boolean): string{
     let val = process.env[name];
     if (!val) {
-        console.error(`${name} env var not set`);
-        process.exit(1);
+        if(isOptional)
+        {
+            return null;
+        }
+        else
+        {
+            console.error(`${name} env var not set`);
+            process.exit(1);
+        }
     }
     return val;
 }
-
+export async function getOptionalEnvironmentVariable(name: string): Promise<string>{
+    return getOptionalEnv(name, true);
+}
 export async function getWebApi(serverUrl?: string): Promise<vm.WebApi> {
     serverUrl = serverUrl || getEnv("API_URL");
     return await this.getApi(serverUrl);
